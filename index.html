@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIP-C01 Practice Exam</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+.header{background:#1a1f2e;border-bottom:1px solid #2d3748;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-title{font-size:16px;font-weight:700;color:#fff}
+.header-badge{background:#FF9900;color:#000;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px}
+.progress-bar-wrap{height:4px;background:#2d3748;position:sticky;top:57px;z-index:99}
+.progress-bar{height:4px;background:linear-gradient(90deg,#FF9900,#f6c142);transition:width .4s ease}
+.container{max-width:860px;margin:0 auto;padding:32px 20px 60px}
+.start-screen{text-align:center;padding:60px 20px}
+.start-screen h1{font-size:32px;font-weight:800;color:#fff;margin-bottom:12px}
+.start-screen p{color:#94a3b8;font-size:16px;margin-bottom:32px;line-height:1.6}
+.domain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:40px;text-align:left}
+.domain-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;padding:16px}
+.domain-card .d-num{font-size:11px;color:#FF9900;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.domain-card .d-name{font-size:13px;color:#e2e8f0;font-weight:600;margin-bottom:4px}
+.domain-card .d-weight{font-size:12px;color:#64748b}
+.start-btn{background:#FF9900;color:#000;border:none;padding:16px 48px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.start-btn:hover{opacity:.85}
+.exam-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.q-counter{font-size:13px;color:#94a3b8}
+.q-domain{font-size:11px;color:#FF9900;font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:#FF990018;padding:4px 10px;border-radius:20px}
+.timer{font-size:14px;font-weight:700;color:#e2e8f0;font-variant-numeric:tabular-nums}
+.timer.warn{color:#f87171}
+.q-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:28px 28px 24px}
+.q-text{font-size:17px;font-weight:600;color:#f1f5f9;line-height:1.6;margin-bottom:24px}
+.q-text code{background:#0f1117;padding:2px 6px;border-radius:4px;font-size:15px;color:#FF9900;font-family:'Courier New',monospace}
+.options{display:flex;flex-direction:column;gap:10px}
+.option{border:1.5px solid #2d3748;border-radius:10px;padding:14px 18px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:14px;background:#0f1117}
+.option:hover:not(.disabled){border-color:#FF9900;background:#FF990010}
+.option.disabled{cursor:default}
+.opt-label{min-width:26px;height:26px;border-radius:50%;background:#2d3748;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#94a3b8;flex-shrink:0;margin-top:1px}
+.opt-text{font-size:15px;color:#cbd5e1;line-height:1.5}
+.option.correct{border-color:#22c55e;background:#22c55e12}
+.option.correct .opt-label{background:#22c55e;color:#fff}
+.option.correct .opt-text{color:#f1f5f9}
+.option.wrong{border-color:#ef4444;background:#ef444412}
+.option.wrong .opt-label{background:#ef4444;color:#fff}
+.option.wrong .opt-text{color:#f1f5f9}
+.feedback{margin-top:20px;border-radius:10px;padding:20px;display:none}
+.feedback.show{display:block}
+.feedback.correct-fb{background:#22c55e12;border:1px solid #22c55e40}
+.feedback.wrong-fb{background:#ef444412;border:1px solid #ef444440}
+.feedback-header{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.feedback.correct-fb .feedback-header{color:#22c55e}
+.feedback.wrong-fb .feedback-header{color:#ef4444}
+.feedback-icon{font-size:18px}
+.feedback-explanation{font-size:14px;color:#94a3b8;line-height:1.7}
+.feedback-explanation strong{color:#e2e8f0}
+.why-correct{color:#22c55e;font-weight:600}
+.next-btn{margin-top:20px;width:100%;background:#FF9900;color:#000;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;display:none}
+.next-btn.show{display:block}
+.next-btn:hover{opacity:.85}
+.results{text-align:center;padding:20px 0}
+.results h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px}
+.score-circle{width:160px;height:160px;border-radius:50%;margin:32px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border:8px solid #FF9900}
+.score-circle .score-num{font-size:42px;font-weight:800;color:#FF9900}
+.score-circle .score-lbl{font-size:13px;color:#64748b}
+.score-status{font-size:18px;font-weight:700;margin-bottom:8px}
+.score-status.pass{color:#22c55e}
+.score-status.fail{color:#ef4444}
+.score-subtitle{font-size:14px;color:#64748b;margin-bottom:32px}
+.domain-results{text-align:left;margin-bottom:32px}
+.domain-results h3{font-size:14px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+.domain-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.domain-row-label{font-size:13px;color:#e2e8f0;width:300px;flex-shrink:0}
+.domain-bar-wrap{flex:1;height:8px;background:#2d3748;border-radius:4px;overflow:hidden}
+.domain-bar{height:8px;border-radius:4px}
+.domain-score-pct{font-size:12px;color:#94a3b8;width:40px;text-align:right}
+.retry-btn{background:#FF9900;color:#000;border:none;padding:14px 40px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+.retry-btn:hover{opacity:.85}
+@media(max-width:600px){.q-text{font-size:15px}.option{padding:12px 14px}.q-card{padding:20px 16px}.domain-row-label{width:160px;font-size:11px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-title">AIP-C01 Practice Exam</div>
+  <div class="header-badge">AWS CERTIFIED</div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div class="container">
+  <div id="startScreen" class="start-screen">
+    <h1>AIP-C01 Practice Exam</h1>
+    <p>AWS Certified Generative AI Developer Professional<br>75 questions &mdash; 170 minutes &mdash; passing score 720/1000</p>
+    <div class="domain-grid">
+      <div class="domain-card"><div class="d-num">Domain 1</div><div class="d-name">Foundation Model Integration &amp; Data Management</div><div class="d-weight">31% &mdash; 23 questions</div></div>
+      <div class="domain-card"><div class="d-num">Domain 2</div><div class="d-name">GenAI Application Implementation &amp; Integration</div><div class="d-weight">26% &mdash; 20 questions</div></div>
+      <div class="domain-card"><div class="d-num">Domain 3</div><div class="d-name">AI Safety, Security &amp; Governance</div><div class="d-weight">20% &mdash; 15 questions</div></div>
+      <div class="domain-card"><div class="d-num">Domain 4</div><div class="d-name">Operational Excellence &amp; Efficiency</div><div class="d-weight">12% &mdash; 9 questions</div></div>
+      <div class="domain-card"><div class="d-num">Domain 5</div><div class="d-name">Testing, Validation &amp; Troubleshooting</div><div class="d-weight">11% &mdash; 8 questions</div></div>
+    </div>
+    <button class="start-btn" onclick="startExam()">Start Practice Exam</button>
+  </div>
+  <div id="examScreen" style="display:none">
+    <div class="exam-meta">
+      <span class="q-counter" id="qCounter">Question 1 of 75</span>
+      <span class="q-domain" id="qDomain">Domain 1</span>
+      <span class="timer" id="timer">2:50:00</span>
+    </div>
+    <div class="q-card">
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback">
+        <div class="feedback-header"><span class="feedback-icon" id="fbIcon"></span><span id="fbTitle"></span></div>
+        <div class="feedback-explanation" id="fbExplanation"></div>
+      </div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question &rarr;</button>
+    </div>
+  </div>
+  <div id="resultsScreen" style="display:none">
+    <div class="results">
+      <h2>Exam Complete</h2>
+      <div class="score-circle" id="scoreCircle"><div class="score-num" id="scoreNum"></div><div class="score-lbl">out of 1000</div></div>
+      <div class="score-status" id="scoreStatus"></div>
+      <div class="score-subtitle" id="scoreSubtitle"></div>
+      <div class="domain-results"><h3>Performance by Domain</h3><div id="domainResults"></div></div>
+      <button class="retry-btn" onclick="restartExam()">Retake Exam</button>
+    </div>
+  </div>
+</div>
+<script src="questions.js"></script>
+<script>
+const LABELS=['A','B','C','D'];
+const DNAMES={1:'Foundation Model Integration & Data Management',2:'GenAI Application Implementation & Integration',3:'AI Safety, Security & Governance',4:'Operational Excellence & Efficiency',5:'Testing, Validation & Troubleshooting'};
+let cur=0,answered=false,score=0,timerInt,secs=170*60;
+let ds={1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0},4:{c:0,t:0},5:{c:0,t:0}};
+
+function startExam(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('examScreen').style.display='block';
+  render();startTimer();
+}
+function startTimer(){
+  const el=document.getElementById('timer');
+  timerInt=setInterval(()=>{
+    secs--;
+    if(secs<=0){clearInterval(timerInt);showResults();return;}
+    const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+    el.textContent=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(secs<600)el.classList.add('warn');else el.classList.remove('warn');
+  },1000);
+}
+function render(){
+  const q=Q[cur];answered=false;
+  document.getElementById('qCounter').textContent=`Question ${cur+1} of ${Q.length}`;
+  document.getElementById('qDomain').textContent=`Domain ${q.d}`;
+  document.getElementById('progressBar').style.width=`${(cur/Q.length)*100}%`;
+  document.getElementById('qText').innerHTML=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.o.forEach((o,i)=>{
+    const d=document.createElement('div');d.className='option';d.id=`o${i}`;d.onclick=()=>pick(i);
+    d.innerHTML=`<div class="opt-label">${LABELS[i]}</div><div class="opt-text">${o}</div>`;
+    opts.appendChild(d);
+  });
+  const fb=document.getElementById('feedback');fb.className='feedback';fb.style.display='none';
+  document.getElementById('nextBtn').className='next-btn';
+}
+function pick(idx){
+  if(answered)return;answered=true;
+  const q=Q[cur];const ok=q.a===idx;
+  ds[q.d].t++;if(ok){score++;ds[q.d].c++;}
+  for(let i=0;i<4;i++){
+    const el=document.getElementById(`o${i}`);el.classList.add('disabled');el.onclick=null;
+    if(i===q.a)el.classList.add('correct');
+    else if(i===idx&&!ok)el.classList.add('wrong');
+  }
+  const fb=document.getElementById('feedback');fb.style.display='block';
+  if(ok){fb.className='feedback correct-fb show';document.getElementById('fbIcon').textContent='✓';document.getElementById('fbTitle').textContent='Correct!';}
+  else{fb.className='feedback wrong-fb show';document.getElementById('fbIcon').textContent='✗';document.getElementById('fbTitle').textContent=`Incorrect. The correct answer is ${LABELS[q.a]}.`;}
+  document.getElementById('fbExplanation').innerHTML=q.e;
+  const nb=document.getElementById('nextBtn');nb.className='next-btn show';
+  nb.textContent=cur<Q.length-1?'Next Question →':'View Results';
+}
+function nextQuestion(){
+  if(cur<Q.length-1){cur++;render();window.scrollTo({top:0,behavior:'smooth'});}
+  else showResults();
+}
+function showResults(){
+  clearInterval(timerInt);
+  document.getElementById('examScreen').style.display='none';
+  document.getElementById('resultsScreen').style.display='block';
+  document.getElementById('progressBar').style.width='100%';
+  const pct=score/Q.length,scaled=Math.round(100+pct*900),pass=scaled>=720;
+  const circle=document.getElementById('scoreCircle');circle.style.borderColor=pass?'#22c55e':'#ef4444';
+  const sn=document.getElementById('scoreNum');sn.textContent=scaled;sn.style.color=pass?'#22c55e':'#ef4444';
+  const st=document.getElementById('scoreStatus');st.textContent=pass?'✓ PASS':'✗ FAIL';st.className=`score-status ${pass?'pass':'fail'}`;
+  document.getElementById('scoreSubtitle').textContent=`You answered ${score} of ${Q.length} correctly (${Math.round(pct*100)}%) | Passing score: 720/1000`;
+  const dr=document.getElementById('domainResults');dr.innerHTML='';
+  [1,2,3,4,5].forEach(d=>{
+    const s=ds[d];if(!s.t)return;
+    const p=Math.round((s.c/s.t)*100);
+    const colour=p>=70?'#22c55e':p>=50?'#FF9900':'#ef4444';
+    dr.innerHTML+=`<div class="domain-row"><div class="domain-row-label">D${d}: ${DNAMES[d]}</div><div class="domain-bar-wrap"><div class="domain-bar" style="width:${p}%;background:${colour}"></div></div><div class="domain-score-pct">${p}%</div></div>`;
+  });
+}
+function restartExam(){
+  cur=0;answered=false;score=0;secs=170*60;
+  ds={1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0},4:{c:0,t:0},5:{c:0,t:0}};
+  document.getElementById('resultsScreen').style.display='none';
+  document.getElementById('examScreen').style.display='block';
+  document.getElementById('timer').classList.remove('warn');
+  render();startTimer();window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
